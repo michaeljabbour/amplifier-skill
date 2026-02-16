@@ -1,101 +1,93 @@
 # Amplifier Skill
 
-Delegate tasks to [Microsoft Amplifier](https://github.com/microsoft/amplifier)'s AI agent ecosystem from any AI coding assistant.
+Delegate complex work to [Microsoft Amplifier](https://github.com/microsoft/amplifier)
+from coding assistants while keeping local/simple tasks local.
 
-**Works with:** Claude Code, Warp, Cursor, Windsurf, Continue, and any tool that supports skills/commands.
+## What Changed in V2
+
+- Explicit-intent delegation policy: delegate only when users explicitly ask for Amplifier.
+- Runtime-first discovery: avoid hardcoded bundle/agent lists.
+- Sandbox-safe behavior: filesystem fallbacks for sessions and agent discovery.
+- Skill metadata support: `agents/openai.yaml` included for product UIs.
 
 ## Quick Start
 
-### 1. Install Amplifier CLI
+### 1. Install Amplifier
 
 ```bash
 uv tool install git+https://github.com/microsoft/amplifier
 amplifier init
 ```
 
-### 2. Install the Skill
+### 2. Install This Skill
 
 **Claude Code:**
+
 ```bash
 claude skill add https://github.com/michaeljabbour/amplifier-skill/blob/main/SKILL.md
 ```
 
-**Warp:**
+**Warp (or manual install):**
+
 ```bash
 mkdir -p ~/.claude/skills/amplifier
-curl -o ~/.claude/skills/amplifier/SKILL.md https://raw.githubusercontent.com/michaeljabbour/amplifier-skill/main/SKILL.md
+curl -o ~/.claude/skills/amplifier/SKILL.md \
+  https://raw.githubusercontent.com/michaeljabbour/amplifier-skill/main/SKILL.md
 ```
 
-**Other tools:** Copy `SKILL.md` to your tool's skills/commands directory.
+**Other tools:** copy `SKILL.md` into the tool's skills/commands directory.
 
-### 3. Use It
+## Core Behavior
 
-Mention **"Amplifier"** to delegate:
+- Delegate only when users explicitly request Amplifier usage.
+- Prefer local execution for quick edits, simple shell operations, and obvious fixes.
+- Query Amplifier history/context via script or runtime commands.
+- Discover agents dynamically at runtime or from local cache fallback.
 
-```
-Use Amplifier to debug this code...
-Have Amplifier review security...
-Delegate to Amplifier for architecture planning...
-Show me Amplifier context for this project...
-```
+## Helper Scripts
 
-## Features
+### Session context lookup
 
-### Task Delegation
-Delegate heavy analysis to Amplifier's specialized agents:
-- **zen-architect** — System design with ruthless simplicity
-- **bug-hunter** — Systematic hypothesis-driven debugging
-- **web-research** — Web research and content fetching
-- **explorer** — Breadth-first codebase exploration
-- **git-ops** — Git workflows and version control
-
-Just describe the task — Amplifier picks the right specialist.
-
-### Session Context
-Query prior Amplifier sessions for project context:
 ```bash
-# Resume last session
-amplifier continue
-
-# List sessions
-amplifier session list
-
-# Interactive mode
-amplifier
+./scripts/session_context.sh --project "$PWD" --limit 10
+./scripts/session_context.sh --all-projects --limit 10
 ```
 
-## When to Use Amplifier
+### Agent discovery
 
-| Use Amplifier | Use Local Agent |
-|---------------|------------------|
-| Architecture analysis | Quick file edits |
-| Security reviews | Simple grep/search |
-| Complex debugging | Small, focused changes |
-| Multi-file refactoring research | Shell commands |
-| Second opinion on approach | Obvious fixes |
+```bash
+./scripts/list_agents.sh
+./scripts/list_agents.sh --bundle foundation
+```
 
-## Requirements
+## Validation
 
-- [Amplifier CLI](https://github.com/microsoft/amplifier) (`uv tool install git+https://github.com/microsoft/amplifier`)
-- Provider configured: `amplifier init`
-- `ANTHROPIC_API_KEY` or `OPENAI_API_KEY`
+Run the skill validator:
+
+```bash
+python3 /Users/michaeljabbour/.codex/skills/.system/skill-creator/scripts/quick_validate.py \
+  /Users/michaeljabbour/dev/amplifier-skill
+```
 
 ## Documentation
 
-- [Amplifier Quick Reference](docs/amplifier.md) — Commands, agents, bundles
-- [Official Amplifier Docs](https://github.com/microsoft/amplifier) — Full documentation
+- [Quick Reference](docs/amplifier.md)
+- [Agent Discovery Guide](resources/agent-catalog.md)
+- [Official Amplifier Docs](https://github.com/microsoft/amplifier)
 
-## Files
+## Repository Layout
 
-```
-├── SKILL.md                   # Universal skill definition
-├── README.md                  # This file
+```text
+.
+├── SKILL.md
+├── README.md
+├── agents/
+│   └── openai.yaml
 ├── docs/
-│   └── amplifier.md           # Amplifier documentation
-└── resources/
-    └── agent-catalog.md       # Detailed agent reference
+│   └── amplifier.md
+├── resources/
+│   └── agent-catalog.md
+└── scripts/
+    ├── list_agents.sh
+    └── session_context.sh
 ```
-
-## License
-
-MIT

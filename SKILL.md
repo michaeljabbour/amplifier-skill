@@ -1,132 +1,112 @@
+---
+name: amplifier-skill
+description: Delegate complex work to Microsoft Amplifier from coding assistants. Use when users explicitly ask to use Amplifier, delegate to Amplifier, inspect Amplifier history/context, or discover Amplifier agents and bundles. Prefer conservative delegation and use CLI-first discovery with filesystem fallbacks in restricted environments.
+---
+
 # Amplifier Skill
 
-Delegate tasks to Microsoft Amplifier's AI agent ecosystem and query session context.
+Delegate only on explicit Amplifier intent and keep simple local work local.
 
-## Trigger
+## Workflow
 
-USE WHEN user says "amplifier", "use amplifier", "delegate to amplifier", "amplifier context", "amplifier history", "what did amplifier work on", or wants to delegate heavy analysis.
+### 1. Run preflight checks
 
-## Instructions
+Verify Amplifier is available before delegating:
 
-### 1. Task Delegation
+```bash
+command -v amplifier
+amplifier --help
+amplifier provider current
+```
 
-When user wants to delegate a task to Amplifier:
+If provider state is missing or invalid, instruct:
+
+```bash
+amplifier init
+```
+
+### 2. Decide whether to delegate
+
+Delegate when the user is explicit about Amplifier, for example:
+- "use Amplifier"
+- "delegate to Amplifier"
+- "show Amplifier context/history"
+- "what agents does Amplifier have?"
+
+Keep local when the task is a quick edit, simple shell command, obvious fix, or routine repo search.
+
+When intent is ambiguous, ask one short clarification instead of auto-delegating.
+
+### 3. Delegate tasks to Amplifier
+
+Use single-shot delegation:
 
 ```bash
 amplifier run "<task description>"
 ```
 
-**Best tasks for Amplifier:**
-- Architecture analysis and design proposals
-- Security vulnerability review
-- Complex debugging with hypothesis generation
-- Large codebase exploration/research
-- Multi-file refactoring planning
+Use multi-turn delegation:
 
-**Keep local (don't delegate):**
-- Quick file edits
-- Simple shell commands
-- Small, focused changes
-- Obvious fixes
-
-**Examples:**
 ```bash
-# Security review
-amplifier run "Review this codebase for security vulnerabilities, focusing on auth and input validation"
-
-# Architecture analysis
-amplifier run "Analyze the architecture of this project and suggest improvements for scalability"
-
-# Complex debugging
-amplifier run "Debug why the API returns 500 errors intermittently - investigate race conditions"
-
-# Use specific agent
-amplifier run "Use bug-hunter to systematically debug this error: <paste error>"
-```
-
-### 2. Session Context Query
-
-When user asks about prior Amplifier work ("amplifier context", "amplifier history"):
-
-**List recent sessions for current project:**
-```bash
-PROJECT_PATH=$(echo $PWD | tr '/' '-' | sed 's/^-//')
-find ~/.amplifier/projects -type d -name "*${PROJECT_PATH}*" -exec find {} -name metadata.json \; 2>/dev/null | \
-  xargs -I{} sh -c 'echo "---"; cat "{}"' 2>/dev/null | \
-  grep -A5 'session_id\|name\|description\|created'
-```
-
-**Quick check for any recent sessions:**
-```bash
-find ~/.amplifier/projects/*/sessions -name metadata.json -mtime -7 2>/dev/null | \
-  head -5 | xargs -I{} sh -c 'echo "=== {} ==="; cat "{}" | jq -r ".name // .session_id"' 2>/dev/null
-```
-
-**List all projects with sessions:**
-```bash
-ls -lt ~/.amplifier/projects/ 2>/dev/null | head -10
-```
-
-**Resume a session:**
-```bash
-amplifier session resume <session-id>
-```
-
-### 3. Available Bundles & Agents
-
-To show Amplifier's capabilities:
-```bash
-amplifier bundle list 2>/dev/null | head -20
-```
-
-In chat mode, use `/agents` to see available agents.
-
-### 4. Amplifier's Specialized Agents
-
-Amplifier automatically routes to the right specialist:
-
-- **zen-architect** — System design with ruthless simplicity
-- **bug-hunter** — Systematic hypothesis-driven debugging
-- **web-research** — Web research and content fetching
-- **modular-builder** — Code implementation
-- **explorer** — Breadth-first exploration with citation-ready summaries
-- **git-ops** — Git workflows and version control
-
-Just describe the task — Amplifier picks the right one.
-
-### 5. Interactive Mode
-
-For complex multi-turn tasks:
-```bash
-# Start interactive chat
 amplifier
-
-# Resume last session
 amplifier continue
-
-# Resume specific session
 amplifier session resume <session-id>
 ```
 
-## Decision Guide
+Use optional targeting only when the user asks:
 
-| Scenario | Action |
-|----------|--------|
-| User says "use Amplifier to..." | Delegate via `amplifier run` |
-| User asks "what did Amplifier work on" | Query session context |
-| User wants architecture/security review | Recommend Amplifier delegation |
-| Quick edit or simple task | Handle locally, don't delegate |
-| Complex multi-turn analysis | Use `amplifier` interactive mode |
+```bash
+amplifier run --bundle <bundle-name> "<task description>"
+amplifier run --provider <provider-name> "<task description>"
+```
 
-## Prerequisites
+### 4. Query session context safely
 
-- Amplifier CLI: `uv tool install git+https://github.com/microsoft/amplifier`
-- Provider configured: `amplifier provider install`
-- API key: `ANTHROPIC_API_KEY` or `OPENAI_API_KEY`
+Use the helper script first:
 
-## Notes
+```bash
+./scripts/session_context.sh --project "$PWD" --limit 10
+./scripts/session_context.sh --all-projects --limit 10
+```
 
-- Sessions persist and can be resumed with `amplifier continue`
-- Complex tasks may take 1-5 minutes
-- Sessions are stored in `~/.amplifier/projects/<project>/sessions/`
-- Use `amplifier bundle add <url>` to add capability bundles
+The script uses `amplifier session list` first, then falls back to
+`~/.amplifier/projects/**/metadata.json` parsing when runtime access is blocked.
+
+### 5. Discover agents without hardcoding catalogs
+
+Use the helper script first:
+
+```bash
+./scripts/list_agents.sh
+./scripts/list_agents.sh --bundle foundation
+```
+
+The script tries runtime commands first, then parses cached manifests under
+`~/.amplifier/cache/*/bundle.md`.
+
+For bundle-level inspection:
+
+```bash
+amplifier bundle list
+amplifier bundle current
+amplifier bundle show <bundle-name>
+```
+
+### 6. Handle failure modes
+
+If `amplifier` is missing, instruct installation:
+
+```bash
+uv tool install git+https://github.com/microsoft/amplifier
+```
+
+If runtime commands fail in sandboxed/restricted sessions, keep moving with the helper script fallbacks and summarize what data was available.
+
+If no sessions or agents are found, return a clear empty-state response and next command to run.
+
+## Guardrails
+
+- Delegate conservatively: explicit intent only.
+- Avoid stale hardcoded model, bundle, or agent lists.
+- Prefer dynamic discovery over static documentation snapshots.
+- Summarize Amplifier output and next steps after delegation completes.

@@ -1,147 +1,111 @@
-# Amplifier Documentation
+# Amplifier Quick Reference
 
-> Source: [microsoft/amplifier](https://github.com/microsoft/amplifier)
+Short command cheatsheet used by this skill. Prefer runtime discovery over
+static catalogs.
 
-## What is Amplifier?
-
-Amplifier is an AI-powered modular development assistant from Microsoft. It brings AI assistance to your command line with a modular, extensible architecture.
-
-**Key Features:**
-- **Modular**: Swap AI providers, tools, and behaviors like LEGO bricks
-- **Bundle-based**: Composable configuration packages for different scenarios
-- **Session persistence**: Pick up where you left off, even across projects
-- **Extensible**: Build your own modules, bundles, or entire custom experiences
-
-## Quick Start
-
-### Install
+## Install and Setup
 
 ```bash
-# Install UV first
-curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# Install Amplifier
 uv tool install git+https://github.com/microsoft/amplifier
-
-# First-time setup
 amplifier init
 ```
 
-### Basic Usage
+## Preflight
 
 ```bash
-# Single command
-amplifier run "Explain async/await in Python"
-
-# Interactive chat mode
-amplifier
-
-# Resume last session
-amplifier continue
-```
-
-## Supported Providers
-
-- **Anthropic Claude** (recommended) - Sonnet 4.5, Opus 4.6, Haiku 4.5
-- **OpenAI** - GPT-5.2, GPT-5.2-Pro, GPT-5.1-Codex
-- **Azure OpenAI** - Enterprise with managed identity support
-- **Ollama** - Local, free (llama3, codellama, etc.)
-
-```bash
-# Switch providers
-amplifier provider use anthropic --model claude-opus-4-6
-amplifier provider use openai --model gpt-5.2
-```
-
-## Bundles
-
-Bundles are composable configuration packages:
-
-```bash
-# See current bundle
+command -v amplifier
+amplifier --help
+amplifier provider current
 amplifier bundle current
-
-# Add bundles
-amplifier bundle add git+https://github.com/microsoft/amplifier-bundle-recipes@main
-amplifier bundle add git+https://github.com/microsoft/amplifier-bundle-design-intelligence@main
-
-# Use a bundle
-amplifier bundle use recipes
 ```
 
-**The `foundation` bundle** (default) includes:
-- **Tools**: filesystem, bash, web, search, task delegation
-- **Agents**: 14 specialized agents
-- **Behaviors**: logging, redaction, streaming UI, todo tracking
-
-## Agents
-
-Specialized AI personas for focused tasks:
-
-| Agent | Purpose |
-|-------|---------|
-| zen-architect | System design with ruthless simplicity |
-| bug-hunter | Systematic debugging |
-| web-research | Web research and content fetching |
-| modular-builder | Code implementation |
-| explorer | Breadth-first exploration with citations |
-| git-ops | Git workflows |
+## Delegate Work
 
 ```bash
-# Let AI pick the right agent
-amplifier run "Design a caching layer"
+# Single-shot delegation
+amplifier run "Review this codebase for security issues"
 
-# Request specific agent
-amplifier run "Use bug-hunter to debug this error: [paste]"
+# Interactive delegation
+amplifier
+amplifier continue
+amplifier session resume <session-id>
+
+# Optional targeting
+amplifier run --bundle foundation "Analyze architecture tradeoffs"
+amplifier run --provider provider-anthropic "Compare two designs"
 ```
 
 ## Sessions
 
-Sessions persist automatically:
-
 ```bash
-# Resume most recent session
-amplifier continue
+# Current project
+amplifier session list -n 10
 
-# List sessions (current project)
-amplifier session list
+# Specific project path
+amplifier session list --project /abs/path/to/repo -n 10
 
-# List all sessions
-amplifier session list --all-projects
+# All projects
+amplifier session list --all-projects -n 10
 
-# Resume specific session
-amplifier session resume <session-id>
+# Show one session
+amplifier session show <session-id>
 ```
 
-Sessions are project-scoped — different directory, different sessions.
-
-## Chat Commands
-
-In interactive mode:
-- `/help` - Show available commands
-- `/agents` - List available agents
-- `/tools` - Show loaded tools
-- `/status` - Session status
-- `/config` - Current configuration
-- `/think` and `/do` - Toggle plan mode
-
-## Configuration
+## Agent and Bundle Discovery
 
 ```bash
-# Switch provider
-amplifier provider use anthropic --model claude-opus-4-6
+# Discover bundles
+amplifier bundle list
+amplifier bundle show <bundle-name>
 
-# Switch bundle
-amplifier bundle use foundation
-
-# Add modules
-amplifier module add tool-jupyter
+# Try runtime agent discovery
+amplifier agents list --bundle <bundle-name>
 ```
 
-## Links
+For this skill's fallback discovery commands:
 
-- **Main Repo**: https://github.com/microsoft/amplifier
-- **Core Library**: https://github.com/microsoft/amplifier-core
-- **Foundation Bundle**: https://github.com/microsoft/amplifier-foundation
-- **Bundle Guide**: https://github.com/microsoft/amplifier-foundation/blob/main/docs/BUNDLE_GUIDE.md
-- **Agent Authoring**: https://github.com/microsoft/amplifier-foundation/blob/main/docs/AGENT_AUTHORING.md
+```bash
+./scripts/list_agents.sh --bundle foundation
+./scripts/session_context.sh --project "$PWD" --limit 10
+```
+
+## Troubleshooting
+
+### `amplifier: command not found`
+
+Install Amplifier, then verify:
+
+```bash
+uv tool install git+https://github.com/microsoft/amplifier
+which amplifier
+```
+
+### Provider not configured
+
+Run:
+
+```bash
+amplifier init
+```
+
+### Runtime command fails in restricted/sandboxed environments
+
+Use filesystem fallback scripts:
+
+```bash
+./scripts/session_context.sh --all-projects --limit 10
+./scripts/list_agents.sh
+```
+
+### Multiple Amplifier binaries on PATH
+
+Inspect resolution order:
+
+```bash
+which -a amplifier
+```
+
+## Canonical Sources
+
+- [microsoft/amplifier](https://github.com/microsoft/amplifier)
+- [Amplifier Foundation](https://github.com/microsoft/amplifier-foundation)
