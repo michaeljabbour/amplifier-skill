@@ -1,6 +1,8 @@
-# Amplifier Skill for Claude Code
+# Amplifier Skill
 
-Delegate tasks to [Microsoft Amplifier](https://github.com/microsoft/amplifier)'s remote AI agents from Claude Code.
+Delegate tasks to [Microsoft Amplifier](https://github.com/microsoft/amplifier)'s AI agent ecosystem from any AI coding assistant.
+
+**Works with:** Claude Code, Warp, Cursor, Windsurf, Continue, and any tool that supports skills/commands.
 
 ## Quick Start
 
@@ -8,75 +10,88 @@ Delegate tasks to [Microsoft Amplifier](https://github.com/microsoft/amplifier)'
 
 ```bash
 uv tool install git+https://github.com/microsoft/amplifier
-amplifier provider install
+amplifier init
 ```
 
 ### 2. Install the Skill
 
+**Claude Code:**
 ```bash
-claude skill add https://github.com/robotdad/claude-amplifier-skill/blob/main/Skill.md
+claude skill add https://github.com/michaeljabbour/amplifier-skill/blob/main/SKILL.md
 ```
 
-Or manually:
+**Warp:**
 ```bash
-curl -o ~/.claude/commands/amplifier.md https://raw.githubusercontent.com/robotdad/claude-amplifier-skill/main/Skill.md
+mkdir -p ~/.claude/skills/amplifier
+curl -o ~/.claude/skills/amplifier/SKILL.md https://raw.githubusercontent.com/michaeljabbour/amplifier-skill/main/SKILL.md
 ```
+
+**Other tools:** Copy `SKILL.md` to your tool's skills/commands directory.
 
 ### 3. Use It
 
-In Claude Code, mention **"Amplifier"** to delegate:
+Mention **"Amplifier"** to delegate:
 
 ```
 Use Amplifier to debug this code...
 Have Amplifier review security...
 Delegate to Amplifier for architecture planning...
+Show me Amplifier context for this project...
 ```
 
-## How It Works
+## Features
 
-**"Amplifier" is the trigger word.**
-
-| You say... | What happens |
-|------------|--------------|
-| "use bug-hunter" | Claude Code's local agent |
-| "use **Amplifier** to debug" | Amplifier via CLI |
-
-Without "Amplifier" → local agents. With "Amplifier" → remote delegation via `amplifier run`.
-
-## Amplifier's Agents
-
-| Specialty | Capabilities |
-|-----------|--------------|
-| Architecture | System design, module boundaries, refactoring |
-| Debugging | Hypothesis-driven bug hunting, root cause analysis |
-| Security | OWASP checks, vulnerability scanning |
-| Testing | Coverage analysis, test case suggestions |
-| Research | Codebase exploration, web research |
-| Operations | Git workflows, API integration |
+### Task Delegation
+Delegate heavy analysis to Amplifier's specialized agents:
+- **zen-architect** — System design with ruthless simplicity
+- **bug-hunter** — Systematic hypothesis-driven debugging
+- **web-research** — Web research and content fetching
+- **explorer** — Breadth-first codebase exploration
+- **git-ops** — Git workflows and version control
 
 Just describe the task — Amplifier picks the right specialist.
 
-## Verify It's Working
-
-After using Amplifier, check for a new session:
-
+### Session Context
+Query prior Amplifier sessions for project context:
 ```bash
-ls -lt ~/.amplifier/projects/*/sessions/ | head -3
+# Resume last session
+amplifier continue
+
+# List sessions
+amplifier session list
+
+# Interactive mode
+amplifier
 ```
 
-You should see `Bash(amplifier run ...)` in Claude Code, not `bug-hunter(...)`.
+## When to Use Amplifier
+
+| Use Amplifier | Use Local Agent |
+|---------------|------------------|
+| Architecture analysis | Quick file edits |
+| Security reviews | Simple grep/search |
+| Complex debugging | Small, focused changes |
+| Multi-file refactoring research | Shell commands |
+| Second opinion on approach | Obvious fixes |
 
 ## Requirements
 
-- [Amplifier CLI](https://github.com/microsoft/amplifier)
-- Claude Code (not Claude Desktop — requires local CLI access)
+- [Amplifier CLI](https://github.com/microsoft/amplifier) (`uv tool install git+https://github.com/microsoft/amplifier`)
+- Provider configured: `amplifier init`
 - `ANTHROPIC_API_KEY` or `OPENAI_API_KEY`
+
+## Documentation
+
+- [Amplifier Quick Reference](docs/amplifier.md) — Commands, agents, bundles
+- [Official Amplifier Docs](https://github.com/microsoft/amplifier) — Full documentation
 
 ## Files
 
 ```
-├── Skill.md                   # Claude Code skill definition
+├── SKILL.md                   # Universal skill definition
 ├── README.md                  # This file
+├── docs/
+│   └── amplifier.md           # Amplifier documentation
 └── resources/
     └── agent-catalog.md       # Detailed agent reference
 ```
