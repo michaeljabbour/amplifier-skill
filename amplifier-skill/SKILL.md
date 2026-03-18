@@ -1,17 +1,68 @@
 ---
-name: amplifier-skill
-description: Delegate complex work to Microsoft Amplifier from coding assistants. Use when users explicitly ask to use Amplifier, delegate to Amplifier, inspect Amplifier history/context, or discover Amplifier agents and bundles. Prefer conservative delegation and use CLI-first discovery with filesystem fallbacks in restricted environments.
+name: amplifier-ecosystem-router
+description: Front door for the Amplifier ecosystem skill suite. Routes tasks by repo, layer, and intent to the right companion skill, docs, and expert agent. Use this first for any Amplifier ecosystem question.
 ---
 
-# Amplifier Skill
+# Amplifier Ecosystem Router
 
-Delegate only on explicit Amplifier intent and keep simple local work local.
+Start here. Answer three questions, then follow the routing table.
 
-## Workflow
+1. **Which repo is involved?**
+2. **Which layer is this?**
+3. **What kind of task is this?**
 
-### 1. Run preflight checks
+---
 
-Verify Amplifier is available before delegating:
+## Quick Routing Table
+
+| Task type | Go here |
+|-----------|---------|
+| Delegating work to Amplifier from a coding assistant | Stay here — see Delegation Workflow below |
+| Building an app on Amplifier (web, CLI, Slack, voice) | `amplifier-app-integration` skill + `APPLICATION_INTEGRATION_GUIDE.md` |
+| Creating or modifying a runtime module | `amplifier-module-and-bundle-development` skill + `MODULES.md` + `MODULE_DEVELOPMENT.md` |
+| Authoring or updating a bundle | `amplifier-module-and-bundle-development` skill + `BUNDLE_GUIDE.md` |
+| Understanding kernel, sessions, hooks, module types | `amplifier-core-concepts` skill + `CONCEPTS.md` |
+| Working across multiple repos safely | `amplifier-cross-repo-workflows` skill |
+| Learning from Foundation examples | `amplifier-foundation-reference` skill + `amplifier-foundation/examples/` |
+| Foundation docs (patterns, API, concepts) | `amplifier-foundation-reference` skill + `amplifier-foundation/docs/` |
+
+---
+
+## Repo and Layer Classification
+
+**Which repo are you in?**
+
+| Repo | What it owns | Expert agent |
+|------|-------------|--------------|
+| `amplifier` | Entry point, CLI wrapper, docs, module catalog | `amplifier:amplifier-expert` |
+| `amplifier-core` | Ultra-thin kernel, module contracts, protocol definitions | `core:core-expert` |
+| `amplifier-foundation` | Library layer: bundles, app integration, session API, examples | `foundation:foundation-expert` |
+| `amplifier-app-cli` | Reference CLI app — the real end-to-end validation surface | `foundation:ecosystem-expert` |
+
+**Architectural boundary rule:** Runtime modules depend only on `amplifier-core`. They never import from `amplifier-foundation`. Libraries (`amplifier-foundation`) are consumed by applications (`amplifier-app-cli`), not by modules.
+
+---
+
+## Expert Agent Directory
+
+Route to these when details are volatile, authoritative, or cross-repo:
+
+| Need | Agent |
+|------|-------|
+| Authoritative Amplifier platform guidance | `amplifier:amplifier-expert` |
+| Kernel contracts, module protocol spec | `core:core-expert` |
+| Foundation library, bundles, session API | `foundation:foundation-expert` |
+| Cross-ecosystem architecture and governance | `foundation:ecosystem-expert` |
+
+---
+
+## Delegation Workflow
+
+Use when the user explicitly asks to delegate to Amplifier, inspect Amplifier history, or discover agents.
+
+**Rule:** Delegate on explicit intent only. Keep quick edits, simple shell commands, and obvious fixes local.
+
+### 1. Preflight
 
 ```bash
 command -v amplifier
@@ -19,94 +70,53 @@ amplifier --help
 amplifier provider current
 ```
 
-If provider state is missing or invalid, instruct:
+If provider state is missing: `amplifier init`
+
+### 2. Delegate
 
 ```bash
-amplifier init
-```
-
-### 2. Decide whether to delegate
-
-Delegate when the user is explicit about Amplifier, for example:
-- "use Amplifier"
-- "delegate to Amplifier"
-- "show Amplifier context/history"
-- "what agents does Amplifier have?"
-
-Keep local when the task is a quick edit, simple shell command, obvious fix, or routine repo search.
-
-When intent is ambiguous, ask one short clarification instead of auto-delegating.
-
-### 3. Delegate tasks to Amplifier
-
-Use single-shot delegation:
-
-```bash
+# Single-shot
 amplifier run "<task description>"
-```
 
-Use multi-turn delegation:
-
-```bash
+# Interactive
 amplifier
 amplifier continue
 amplifier session resume <session-id>
+
+# Optional targeting (only when user asks)
+amplifier run --bundle <bundle-name> "<task>"
+amplifier run --provider <provider-name> "<task>"
 ```
 
-Use optional targeting only when the user asks:
-
-```bash
-amplifier run --bundle <bundle-name> "<task description>"
-amplifier run --provider <provider-name> "<task description>"
-```
-
-### 4. Query session context safely
-
-Use the helper script first:
+### 3. Query session context safely
 
 ```bash
 ./scripts/session_context.sh --project "$PWD" --limit 10
 ./scripts/session_context.sh --all-projects --limit 10
 ```
 
-The script uses `amplifier session list` first, then falls back to
-`~/.amplifier/projects/**/metadata.json` parsing when runtime access is blocked.
+Falls back to `~/.amplifier/projects/**/metadata.json` when CLI is blocked.
 
-### 5. Discover agents without hardcoding catalogs
-
-Use the helper script first:
+### 4. Discover agents without hardcoding
 
 ```bash
 ./scripts/list_agents.sh
 ./scripts/list_agents.sh --bundle foundation
 ```
 
-The script tries runtime commands first, then parses cached manifests under
-`~/.amplifier/cache/*/bundle.md`.
+Falls back to `~/.amplifier/cache/*/bundle.md` manifests when CLI is blocked.
 
-For bundle-level inspection:
-
-```bash
-amplifier bundle list
-amplifier bundle current
-amplifier bundle show <bundle-name>
-```
-
-### 6. Handle failure modes
-
-If `amplifier` is missing, instruct installation:
+### 5. Install if missing
 
 ```bash
 uv tool install git+https://github.com/microsoft/amplifier
 ```
 
-If runtime commands fail in sandboxed/restricted sessions, keep moving with the helper script fallbacks and summarize what data was available.
-
-If no sessions or agents are found, return a clear empty-state response and next command to run.
+---
 
 ## Guardrails
 
-- Delegate conservatively: explicit intent only.
-- Avoid stale hardcoded model, bundle, or agent lists.
-- Prefer dynamic discovery over static documentation snapshots.
-- Summarize Amplifier output and next steps after delegation completes.
+- Delegate on explicit intent only. When intent is ambiguous, ask one short clarification.
+- Never hardcode bundle or agent lists — use runtime discovery.
+- When details are volatile or authoritative clarification is needed, route to docs or an expert agent; do not guess.
+- After delegation completes, summarize Amplifier output and recommend next steps.
