@@ -1,16 +1,21 @@
-# Amplifier Skill
+# Amplifier Ecosystem Skill Suite
 
-Delegate complex work to [Microsoft Amplifier](https://github.com/microsoft/amplifier)
-from coding assistants while keeping local/simple tasks local.
+A router-first skill suite for the [Microsoft Amplifier](https://github.com/microsoft/amplifier) ecosystem.
+Start at the router skill. It classifies your task and routes you to the right companion skill,
+canonical docs, and expert agent.
 
-## What Changed in V2
+## Skill Suite
 
-- Explicit-intent delegation policy: delegate only when users explicitly ask for Amplifier.
-- Runtime-first discovery: avoid hardcoded bundle/agent lists.
-- Sandbox-safe behavior: filesystem fallbacks for sessions and agent discovery.
-- Skill metadata support: `agents/openai.yaml` included for product UIs.
+| Skill | Purpose |
+|-------|---------| 
+| [`amplifier-skill`](amplifier-skill/SKILL.md) | **Entry point.** Routes by repo, layer, and intent. |
+| [`amplifier-cross-repo-workflows`](amplifier-cross-repo-workflows/SKILL.md) | Dependency hierarchy, change order, testing ladder, local override, shadow, app-cli validation. |
+| [`amplifier-core-concepts`](amplifier-core-concepts/SKILL.md) | Kernel, five module types, orchestrators, session lifecycle, hooks, tool-vs-hook. |
+| [`amplifier-module-and-bundle-development`](amplifier-module-and-bundle-development/SKILL.md) | Module and bundle authoring: `MODULES.md`, `MODULE_DEVELOPMENT.md`, `BUNDLE_GUIDE.md`. |
+| [`amplifier-foundation-reference`](amplifier-foundation-reference/SKILL.md) | Foundation docs, examples, and `APPLICATION_INTEGRATION_GUIDE.md` distilled. |
+| [`amplifier-app-integration`](amplifier-app-integration/SKILL.md) | Building apps on Amplifier. Protocol boundary, session lifecycle, app-cli as proof surface. |
 
-## Quick Start
+## Install
 
 ### 1. Install Amplifier
 
@@ -19,75 +24,115 @@ uv tool install git+https://github.com/microsoft/amplifier
 amplifier init
 ```
 
-### 2. Install This Skill
+### 2. Install the Router Skill
 
 **Claude Code:**
 
 ```bash
-claude skill add https://github.com/michaeljabbour/amplifier-skill/blob/main/SKILL.md
+claude skill add https://github.com/michaeljabbour/amplifier-skill/blob/main/amplifier-skill/SKILL.md
 ```
 
-**Warp (or manual install):**
+**Manual install (Warp or other tools):**
 
 ```bash
-mkdir -p ~/.claude/skills/amplifier
-curl -o ~/.claude/skills/amplifier/SKILL.md \
-  https://raw.githubusercontent.com/michaeljabbour/amplifier-skill/main/SKILL.md
+mkdir -p ~/.claude/skills/amplifier-ecosystem-router
+curl -o ~/.claude/skills/amplifier-ecosystem-router/SKILL.md \
+  https://raw.githubusercontent.com/michaeljabbour/amplifier-skill/main/amplifier-skill/SKILL.md
 ```
 
-**Other tools:** copy `SKILL.md` into the tool's skills/commands directory.
+**Other tools:** copy `amplifier-skill/SKILL.md` into the tool's skills directory.
 
-## Core Behavior
+### 3. Install Companion Skills (optional)
 
-- Delegate only when users explicitly request Amplifier usage.
-- Prefer local execution for quick edits, simple shell operations, and obvious fixes.
-- Query Amplifier history/context via script or runtime commands.
-- Discover agents dynamically at runtime or from local cache fallback.
+Each companion skill is self-contained in its own directory. Install the ones you need:
+
+```bash
+# Cross-repo workflows
+claude skill add https://github.com/michaeljabbour/amplifier-skill/blob/main/amplifier-cross-repo-workflows/SKILL.md
+
+# Core concepts
+claude skill add https://github.com/michaeljabbour/amplifier-skill/blob/main/amplifier-core-concepts/SKILL.md
+
+# Module and bundle development
+claude skill add https://github.com/michaeljabbour/amplifier-skill/blob/main/amplifier-module-and-bundle-development/SKILL.md
+
+# Foundation reference
+claude skill add https://github.com/michaeljabbour/amplifier-skill/blob/main/amplifier-foundation-reference/SKILL.md
+
+# App integration
+claude skill add https://github.com/michaeljabbour/amplifier-skill/blob/main/amplifier-app-integration/SKILL.md
+```
 
 ## Helper Scripts
+
+These live in `amplifier-skill/scripts/` and are used by the router skill.
 
 ### Session context lookup
 
 ```bash
-./scripts/session_context.sh --project "$PWD" --limit 10
-./scripts/session_context.sh --all-projects --limit 10
+./amplifier-skill/scripts/session_context.sh --project "$PWD" --limit 10
+./amplifier-skill/scripts/session_context.sh --all-projects --limit 10
 ```
 
 ### Agent discovery
 
 ```bash
-./scripts/list_agents.sh
-./scripts/list_agents.sh --bundle foundation
+./amplifier-skill/scripts/list_agents.sh
+./amplifier-skill/scripts/list_agents.sh --bundle foundation
 ```
 
 ## Validation
 
-Run the skill validator:
+Run suite validation:
 
 ```bash
-python3 /Users/michaeljabbour/.codex/skills/.system/skill-creator/scripts/quick_validate.py \
-  /Users/michaeljabbour/dev/amplifier-skill
+bash scripts/validate_suite.sh
 ```
-
-## Documentation
-
-- [Quick Reference](docs/amplifier.md)
-- [Agent Discovery Guide](resources/agent-catalog.md)
-- [Official Amplifier Docs](https://github.com/microsoft/amplifier)
 
 ## Repository Layout
 
 ```text
 .
-├── SKILL.md
 ├── README.md
-├── agents/
-│   └── openai.yaml
-├── docs/
-│   └── amplifier.md
-├── resources/
-│   └── agent-catalog.md
-└── scripts/
-    ├── list_agents.sh
-    └── session_context.sh
+├── amplifier-skill/                        ← Router skill (entry point)
+│   ├── SKILL.md
+│   ├── agents/
+│   │   └── openai.yaml
+│   ├── docs/
+│   │   └── amplifier.md                    ← Router quick reference
+│   ├── resources/
+│   │   └── agent-catalog.md                ← Expert-agent routing guide
+│   └── scripts/
+│       ├── list_agents.sh
+│       └── session_context.sh
+├── amplifier-cross-repo-workflows/         ← Companion skill
+│   └── SKILL.md
+├── amplifier-core-concepts/                ← Companion skill
+│   └── SKILL.md
+├── amplifier-module-and-bundle-development/ ← Companion skill
+│   └── SKILL.md
+├── amplifier-foundation-reference/         ← Companion skill
+│   └── SKILL.md
+├── amplifier-app-integration/              ← Companion skill
+│   └── SKILL.md
+├── scripts/
+│   └── validate_suite.sh
+└── tests/
+    ├── test_list_agents.sh
+    └── test_session_context.sh
 ```
+
+## Canonical Sources
+
+This suite distills and routes around these authoritative sources:
+
+- [`amplifier/docs/MODULES.md`](https://github.com/microsoft/amplifier/blob/main/docs/MODULES.md) — Component catalog and module taxonomy
+- [`amplifier/docs/MODULE_DEVELOPMENT.md`](https://github.com/microsoft/amplifier/blob/main/docs/MODULE_DEVELOPMENT.md) — Module development workflows
+- [`amplifier-foundation/docs/BUNDLE_GUIDE.md`](https://github.com/microsoft/amplifier-foundation/blob/main/docs/BUNDLE_GUIDE.md) — Bundle authoring guide
+- [`amplifier-foundation/docs/APPLICATION_INTEGRATION_GUIDE.md`](https://github.com/microsoft/amplifier-foundation/blob/main/docs/APPLICATION_INTEGRATION_GUIDE.md) — App embedding guide
+- [`amplifier-foundation/examples/`](https://github.com/microsoft/amplifier-foundation/tree/main/examples) — Reference examples
+
+## Documentation
+
+- [Quick Reference](amplifier-skill/docs/amplifier.md)
+- [Expert-Agent Routing Guide](amplifier-skill/resources/agent-catalog.md)

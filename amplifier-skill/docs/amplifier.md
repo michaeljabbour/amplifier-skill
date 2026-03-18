@@ -1,7 +1,22 @@
-# Amplifier Quick Reference
+# Amplifier Ecosystem Router — Quick Reference
 
-Short command cheatsheet used by this skill. Prefer runtime discovery over
-static catalogs.
+Command cheatsheet and routing summary for the router skill.
+For full routing logic, see [SKILL.md](../SKILL.md).
+
+---
+
+## Suite Routing Cheatsheet
+
+| Task | Companion skill |
+|------|----------------|
+| App embedding / integration | `amplifier-app-integration` |
+| Module authoring | `amplifier-module-and-bundle-development` |
+| Bundle authoring | `amplifier-module-and-bundle-development` |
+| Core concepts (kernel, hooks, sessions) | `amplifier-core-concepts` |
+| Cross-repo workflows | `amplifier-cross-repo-workflows` |
+| Foundation examples and docs | `amplifier-foundation-reference` |
+
+---
 
 ## Install and Setup
 
@@ -30,7 +45,7 @@ amplifier
 amplifier continue
 amplifier session resume <session-id>
 
-# Optional targeting
+# Optional targeting (only when user asks)
 amplifier run --bundle foundation "Analyze architecture tradeoffs"
 amplifier run --provider provider-anthropic "Compare two designs"
 ```
@@ -38,74 +53,65 @@ amplifier run --provider provider-anthropic "Compare two designs"
 ## Sessions
 
 ```bash
-# Current project
 amplifier session list -n 10
-
-# Specific project path
 amplifier session list --project /abs/path/to/repo -n 10
-
-# All projects
 amplifier session list --all-projects -n 10
-
-# Show one session
 amplifier session show <session-id>
 ```
 
 ## Agent and Bundle Discovery
 
 ```bash
-# Discover bundles
 amplifier bundle list
 amplifier bundle show <bundle-name>
-
-# Try runtime agent discovery
 amplifier agents list --bundle <bundle-name>
-```
 
-For this skill's fallback discovery commands:
-
-```bash
+# Fallback scripts (use when CLI is blocked)
 ./scripts/list_agents.sh --bundle foundation
 ./scripts/session_context.sh --project "$PWD" --limit 10
+```
+
+## Expert Agents
+
+```bash
+# Route to these for authoritative or volatile details
+amplifier:amplifier-expert      # platform questions
+core:core-expert                # kernel contracts
+foundation:foundation-expert    # bundles, session API, foundation library
+foundation:ecosystem-expert     # cross-repo architecture
 ```
 
 ## Troubleshooting
 
 ### `amplifier: command not found`
-
-Install Amplifier, then verify:
-
 ```bash
 uv tool install git+https://github.com/microsoft/amplifier
 which amplifier
 ```
 
 ### Provider not configured
-
-Run:
-
 ```bash
 amplifier init
 ```
 
-### Runtime command fails in restricted/sandboxed environments
-
-Use filesystem fallback scripts:
-
+### Runtime blocked (sandboxed environment)
 ```bash
 ./scripts/session_context.sh --all-projects --limit 10
 ./scripts/list_agents.sh
 ```
 
-### Multiple Amplifier binaries on PATH
-
-Inspect resolution order:
-
+### Multiple binaries on PATH
 ```bash
 which -a amplifier
 ```
 
+---
+
 ## Canonical Sources
 
-- [microsoft/amplifier](https://github.com/microsoft/amplifier)
-- [Amplifier Foundation](https://github.com/microsoft/amplifier-foundation)
+- [amplifier — MODULES.md](https://github.com/microsoft/amplifier/blob/main/docs/MODULES.md)
+- [amplifier — MODULE_DEVELOPMENT.md](https://github.com/microsoft/amplifier/blob/main/docs/MODULE_DEVELOPMENT.md)
+- [amplifier-foundation — BUNDLE_GUIDE.md](https://github.com/microsoft/amplifier-foundation/blob/main/docs/BUNDLE_GUIDE.md)
+- [amplifier-foundation — APPLICATION_INTEGRATION_GUIDE.md](https://github.com/michaeljabbour/amplifier-foundation/blob/main/docs/APPLICATION_INTEGRATION_GUIDE.md)
+- [amplifier-foundation — CONCEPTS.md](https://github.com/microsoft/amplifier-foundation/blob/main/docs/CONCEPTS.md)
+- [amplifier-foundation — examples/](https://github.com/microsoft/amplifier-foundation/tree/main/examples)
