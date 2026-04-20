@@ -17,7 +17,7 @@ Start here. Answer three questions, then follow the routing table.
 
 | Task type | Go here |
 |-----------|---------|
-| Delegating work to Amplifier from a coding assistant | Stay here — see Delegation Workflow below |
+| Delegating work to Amplifier from an AI agent (Manus, Claude Code, Cursor, Copilot) | Stay here — see Delegation Workflow below |
 | Building an app on Amplifier (web, CLI, Slack, voice) | `amplifier-app-integration` skill + `APPLICATION_INTEGRATION_GUIDE.md` |
 | Creating or modifying a runtime module | `amplifier-module-and-bundle-development` skill + `MODULES.md` + `MODULE_DEVELOPMENT.md` |
 | Authoring or updating a bundle | `amplifier-module-and-bundle-development` skill + `BUNDLE_GUIDE.md` |
@@ -38,6 +38,7 @@ Start here. Answer three questions, then follow the routing table.
 | `amplifier-core` | Ultra-thin kernel, module contracts, protocol definitions | `core:core-expert` |
 | `amplifier-foundation` | Library layer: bundles, app integration, session API, examples | `foundation:foundation-expert` |
 | `amplifier-app-cli` | Reference CLI app — the real end-to-end validation surface | `foundation:ecosystem-expert` |
+| `amplifier-desktop` | Desktop app bundle surface (uses `superpowers` app bundle) | `foundation:ecosystem-expert` |
 
 **Architectural boundary rule:** Runtime modules depend only on `amplifier-core`. They never import from `amplifier-foundation`. Libraries (`amplifier-foundation`) are consumed by applications (`amplifier-app-cli`), not by modules.
 
@@ -53,6 +54,8 @@ Route to these when details are volatile, authoritative, or cross-repo:
 | Kernel contracts, module protocol spec | `core:core-expert` |
 | Foundation library, bundles, session API | `foundation:foundation-expert` |
 | Cross-ecosystem architecture and governance | `foundation:ecosystem-expert` |
+| TDD, plan writing, design validation | `superpowers:implementer`, `superpowers:spec-reviewer` |
+| Memory, context retrieval, knowledge graphs | `mempalace:archivist`, `mempalace:curator` |
 
 ---
 
@@ -62,23 +65,30 @@ Use when the user explicitly asks to delegate to Amplifier, inspect Amplifier hi
 
 **Rule:** Delegate on explicit intent only. Keep quick edits, simple shell commands, and obvious fixes local.
 
-### 1. Preflight
+### 1. Preflight & Setup
+
+Ensure Amplifier is installed in the environment (e.g., `~/.local/bin` for `uv` installs).
 
 ```bash
+export PATH="$HOME/.local/bin:$PATH"
 command -v amplifier
-amplifier --help
 amplifier provider current
 ```
 
-If provider state is missing: `amplifier init`
+If missing, install:
+```bash
+uv tool install git+https://github.com/microsoft/amplifier
+```
+
+If provider state is missing: `amplifier init` (or manually configure `~/.amplifier/settings.yaml` in non-interactive sandboxes like Manus).
 
 ### 2. Delegate
 
 ```bash
-# Single-shot
+# Single-shot (Best for Manus/Autonomous Agents)
 amplifier run "<task description>"
 
-# Interactive
+# Interactive (Best for Claude Code/Terminal)
 amplifier
 amplifier continue
 amplifier session resume <session-id>
@@ -106,11 +116,13 @@ Falls back to `~/.amplifier/projects/**/metadata.json` when CLI is blocked.
 
 Falls back to `~/.amplifier/cache/*/bundle.md` manifests when CLI is blocked.
 
-### 5. Install if missing
+### 5. Memory & Context Awareness
 
+If the user asks to use the memory bundle or maintain long-term context:
 ```bash
-uv tool install git+https://github.com/microsoft/amplifier
+amplifier run --bundle memory "<task>"
 ```
+This enables the `mempalace` integration (`hooks-mempalace-briefing`, `hooks-project-context`, etc.) for persistent state.
 
 ---
 

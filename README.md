@@ -1,6 +1,7 @@
 # Amplifier Ecosystem Skill Suite
 
 A router-first skill suite for the [Microsoft Amplifier](https://github.com/microsoft/amplifier) ecosystem.
+Works with **Manus**, **Claude Code**, **Cursor**, **GitHub Copilot**, **Windsurf**, and any AI coding assistant that supports skills or system prompts.
 Start at the router skill. It classifies your task and routes you to the right companion skill,
 canonical docs, and expert agent.
 
@@ -30,6 +31,22 @@ amplifier init
 
 ```bash
 claude skill add https://github.com/michaeljabbour/amplifier-skill/blob/main/amplifier-skill/SKILL.md
+```
+
+**Manus (Autonomous Agents):**
+
+Copy the skill file into the Manus skills directory:
+```bash
+mkdir -p ~/skills/amplifier-ecosystem-router
+curl -o ~/skills/amplifier-ecosystem-router/SKILL.md \
+  https://raw.githubusercontent.com/michaeljabbour/amplifier-skill/main/amplifier-skill/SKILL.md
+```
+
+**Cursor / Windsurf:**
+
+Add to `.cursorrules` or `.windsurfrules` in your project root:
+```bash
+curl -o .cursorrules https://raw.githubusercontent.com/michaeljabbour/amplifier-skill/main/amplifier-skill/SKILL.md
 ```
 
 **Manual install (Warp or other tools):**
