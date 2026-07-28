@@ -9,7 +9,7 @@ canonical docs, and expert agent.
 
 | Skill | Purpose |
 |-------|---------| 
-| [`amplifier-skill`](amplifier-skill/SKILL.md) | **Entry point.** Routes by repo, layer, and intent. |
+| [`amplifier-ecosystem-router`](amplifier-ecosystem-router/SKILL.md) | **Entry point.** Routes by repo, layer, and intent. |
 | [`amplifier-cross-repo-workflows`](amplifier-cross-repo-workflows/SKILL.md) | Dependency hierarchy, change order, testing ladder, local override, shadow, app-cli validation. |
 | [`amplifier-core-concepts`](amplifier-core-concepts/SKILL.md) | Kernel, five module types, orchestrators, session lifecycle, hooks, tool-vs-hook. |
 | [`amplifier-module-and-bundle-development`](amplifier-module-and-bundle-development/SKILL.md) | Module and bundle authoring: `MODULES.md`, `MODULE_DEVELOPMENT.md`, `BUNDLE_GUIDE.md`. |
@@ -30,7 +30,7 @@ amplifier init
 **Claude Code:**
 
 ```bash
-claude skill add https://github.com/michaeljabbour/amplifier-skill/blob/main/amplifier-skill/SKILL.md
+claude skill add https://github.com/michaeljabbour/amplifier-skill/blob/main/amplifier-ecosystem-router/SKILL.md
 ```
 
 **Manus (Autonomous Agents):**
@@ -38,26 +38,26 @@ claude skill add https://github.com/michaeljabbour/amplifier-skill/blob/main/amp
 Copy the skill file into the Manus skills directory:
 ```bash
 mkdir -p ~/skills/amplifier-ecosystem-router
-curl -o ~/skills/amplifier-ecosystem-router/SKILL.md \
-  https://raw.githubusercontent.com/michaeljabbour/amplifier-skill/main/amplifier-skill/SKILL.md
+curl -fo ~/skills/amplifier-ecosystem-router/SKILL.md \
+  https://raw.githubusercontent.com/michaeljabbour/amplifier-skill/main/amplifier-ecosystem-router/SKILL.md
 ```
 
 **Cursor / Windsurf:**
 
 Add to `.cursorrules` or `.windsurfrules` in your project root:
 ```bash
-curl -o .cursorrules https://raw.githubusercontent.com/michaeljabbour/amplifier-skill/main/amplifier-skill/SKILL.md
+curl -fo .cursorrules https://raw.githubusercontent.com/michaeljabbour/amplifier-skill/main/amplifier-ecosystem-router/SKILL.md
 ```
 
 **Manual install (Warp or other tools):**
 
 ```bash
 mkdir -p ~/.claude/skills/amplifier-ecosystem-router
-curl -o ~/.claude/skills/amplifier-ecosystem-router/SKILL.md \
-  https://raw.githubusercontent.com/michaeljabbour/amplifier-skill/main/amplifier-skill/SKILL.md
+curl -fo ~/.claude/skills/amplifier-ecosystem-router/SKILL.md \
+  https://raw.githubusercontent.com/michaeljabbour/amplifier-skill/main/amplifier-ecosystem-router/SKILL.md
 ```
 
-**Other tools:** copy `amplifier-skill/SKILL.md` into the tool's skills directory.
+**Other tools:** copy `amplifier-ecosystem-router/SKILL.md` into the tool's skills directory.
 
 ### 3. Install Companion Skills (optional)
 
@@ -82,20 +82,20 @@ claude skill add https://github.com/michaeljabbour/amplifier-skill/blob/main/amp
 
 ## Helper Scripts
 
-These live in `amplifier-skill/scripts/` and are used by the router skill.
+These live in `amplifier-ecosystem-router/scripts/` and are used by the router skill.
 
 ### Session context lookup
 
 ```bash
-./amplifier-skill/scripts/session_context.sh --project "$PWD" --limit 10
-./amplifier-skill/scripts/session_context.sh --all-projects --limit 10
+./amplifier-ecosystem-router/scripts/session_context.sh --project "$PWD" --limit 10
+./amplifier-ecosystem-router/scripts/session_context.sh --all-projects --limit 10
 ```
 
 ### Agent discovery
 
 ```bash
-./amplifier-skill/scripts/list_agents.sh
-./amplifier-skill/scripts/list_agents.sh --bundle foundation
+./amplifier-ecosystem-router/scripts/list_agents.sh
+./amplifier-ecosystem-router/scripts/list_agents.sh --bundle foundation
 ```
 
 ## Validation
@@ -111,7 +111,7 @@ bash scripts/validate_suite.sh
 ```text
 .
 ├── README.md
-├── amplifier-skill/                        ← Router skill (entry point)
+├── amplifier-ecosystem-router/             ← Router skill (entry point)
 │   ├── SKILL.md
 │   ├── agents/
 │   │   └── openai.yaml
@@ -151,5 +151,5 @@ This suite distills and routes around these authoritative sources:
 
 ## Documentation
 
-- [Quick Reference](amplifier-skill/docs/amplifier.md)
-- [Expert-Agent Routing Guide](amplifier-skill/resources/agent-catalog.md)
+- [Quick Reference](amplifier-ecosystem-router/docs/amplifier.md)
+- [Expert-Agent Routing Guide](amplifier-ecosystem-router/resources/agent-catalog.md)
