@@ -1,9 +1,9 @@
 #!/usr/bin/env sh
-# Tests for amplifier-skill/scripts/list_agents.sh
+# Tests for amplifier-ecosystem-router/scripts/list_agents.sh
 # Runs without amplifier installed; exercises argument handling and fallback paths.
 set -eu
 
-SCRIPT="$(cd "$(dirname "$0")/.." && pwd)/amplifier-skill/scripts/list_agents.sh"
+SCRIPT="$(cd "$(dirname "$0")/.." && pwd)/amplifier-ecosystem-router/scripts/list_agents.sh"
 PASS=0
 FAIL=0
 

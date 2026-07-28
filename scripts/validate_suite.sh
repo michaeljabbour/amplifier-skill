@@ -13,7 +13,7 @@ warn()  { printf 'WARN:  %s\n' "$1"; WARN=$((WARN + 1)); }
 
 # ── Expected skill files ─────────────────────────────────────────────────────────
 SKILLS="
-amplifier-skill/SKILL.md
+amplifier-ecosystem-router/SKILL.md
 amplifier-cross-repo-workflows/SKILL.md
 amplifier-core-concepts/SKILL.md
 amplifier-module-and-bundle-development/SKILL.md
@@ -63,7 +63,7 @@ for skill in $SKILLS; do
 done
 
 # ── Router skill names ───────────────────────────────────────────────────────────
-if grep -q "^name: amplifier-ecosystem-router" amplifier-skill/SKILL.md 2>/dev/null; then
+if grep -q "^name: amplifier-ecosystem-router" amplifier-ecosystem-router/SKILL.md 2>/dev/null; then
   pass "router skill name: amplifier-ecosystem-router"
 else
   fail "router skill missing name: amplifier-ecosystem-router"
@@ -73,7 +73,7 @@ fi
 for companion in amplifier-cross-repo-workflows amplifier-core-concepts \
                  amplifier-module-and-bundle-development amplifier-foundation-reference \
                  amplifier-app-integration; do
-  if grep -q "$companion" amplifier-skill/SKILL.md 2>/dev/null; then
+  if grep -q "$companion" amplifier-ecosystem-router/SKILL.md 2>/dev/null; then
     pass "router references: $companion"
   else
     fail "router missing reference to: $companion"
@@ -99,7 +99,7 @@ check_ref "amplifier-app-cli"             "amplifier-cross-repo-workflows/SKILL.
 
 # ── Expert agents referenced in router ───────────────────────────────────────────
 for agent in "amplifier:amplifier-expert" "core:core-expert" "foundation:foundation-expert" "foundation:ecosystem-expert"; do
-  if grep -q "$agent" amplifier-skill/SKILL.md 2>/dev/null; then
+  if grep -q "$agent" amplifier-ecosystem-router/SKILL.md 2>/dev/null; then
     pass "expert agent in router: $agent"
   else
     fail "expert agent MISSING from router: $agent"
@@ -107,7 +107,7 @@ for agent in "amplifier:amplifier-expert" "core:core-expert" "foundation:foundat
 done
 
 # ── Helper scripts exist and are executable ──────────────────────────────────────
-for script in amplifier-skill/scripts/list_agents.sh amplifier-skill/scripts/session_context.sh; do
+for script in amplifier-ecosystem-router/scripts/list_agents.sh amplifier-ecosystem-router/scripts/session_context.sh; do
   if [ -x "$script" ]; then
     pass "executable: $script"
   elif [ -f "$script" ]; then
@@ -127,10 +127,10 @@ for test in tests/test_list_agents.sh tests/test_session_context.sh; do
 done
 
 # ── README install path is correct ───────────────────────────────────────────────
-if grep -q "amplifier-skill/SKILL.md" README.md 2>/dev/null; then
-  pass "README: references amplifier-skill/SKILL.md (not root SKILL.md)"
+if grep -q "amplifier-ecosystem-router/SKILL.md" README.md 2>/dev/null; then
+  pass "README: references amplifier-ecosystem-router/SKILL.md (not root SKILL.md)"
 else
-  fail "README: does not reference amplifier-skill/SKILL.md — may have path drift"
+  fail "README: does not reference amplifier-ecosystem-router/SKILL.md — may have path drift"
 fi
 
 # ── Summary ──────────────────────────────────────────────────────────────────────
